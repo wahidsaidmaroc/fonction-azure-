@@ -32,13 +32,15 @@ FALLBACK_RATES_USD = {
 }
 
 EXCHANGE_RATE_API_URL = "https://open.er-api.com/v6/latest/{base}"
+API_TIMEOUT_SECONDS = 5
+CONVERSION_PRECISION = 6
 
 
 def get_exchange_rates(base_currency: str) -> dict:
     """Fetch live exchange rates from open.er-api.com, falling back to static rates."""
     try:
         url = EXCHANGE_RATE_API_URL.format(base=base_currency.upper())
-        response = requests.get(url, timeout=5)
+        response = requests.get(url, timeout=API_TIMEOUT_SECONDS)
         if response.status_code == 200:
             data = response.json()
             if data.get("result") == "success":
@@ -141,7 +143,7 @@ def convert_currency(req: func.HttpRequest) -> func.HttpResponse:
             )
 
         rate = rates[to_currency]
-        converted_amount = round(amount * rate, 6)
+        converted_amount = round(amount * rate, CONVERSION_PRECISION)
 
         result = {
             "from": from_currency,
